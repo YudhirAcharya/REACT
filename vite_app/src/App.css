@@ -2,7 +2,6 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
 
 .logo {
@@ -39,4 +38,48 @@
 
 .read-the-docs {
   color: #888;
+}
+.welcomemsg {
+  padding: 30px;
+  border-radius: 100px;
+  animation: rotation 100s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.square {
+  text-align: end;
+  background-color: white;
+  color: black;
+  font-size: 200%;
+  height: 100px;
+}
+.square:hover {
+  background-color: rgb(152, 158, 163);
+}
+
+.box {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 10px;
+}
+.form-label {
+  display: block;
+  margin: 10px;
+}
+.btn {
+  background-color: blueviolet;
+  display: block;
+  margin-top: 30px;
+}
+
+.nav-bar {
+  display: block;
 }
