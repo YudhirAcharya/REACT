@@ -1,6 +1,6 @@
 import { ACTIONS } from "./App";
 
-export default function OperationBtn({
+export default function OperationButton({
   dispatch,
   operation,
 }) {
