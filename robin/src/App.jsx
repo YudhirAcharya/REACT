@@ -1,65 +1,170 @@
-import { useState } from "react";
+import { useReducer } from "react";
+import DigitBtn from "./DigitsBtn";
+import OperationBtn from "./OperationBtn";
 import "./App.css";
-const title = {
-  grettings: "hello",
-  name: "robin",
+import "./index.css";
+
+export const ACTIONS = {
+  ADD_DIGIT: "add-digit",
+  CHOOSE_OPERATION: "choose-operation",
+  CLEAR: "clear",
+  DELETE_DIGIT: "delete-digit",
+  EVALUATE: "evaluate",
 };
-const list = [2, 4, 6, 8, 10];
-const mappedList = list.map((number) => {
-  return (number = " even  " + number);
-});
+//state,actions
+function reducer(state, { type, payload }) {
+  switch (type) {
+    case ACTIONS.ADD_DIGIT:
+      if (state.overwrite) {
+        return {
+          ...state,
+          currentOperand: payload.digit,
+          overwrite: false,
+        };
+      }
+      if (
+        payload.digit === "0" &&
+        state.currentOperand === "0"
+      )
+        return state;
+      if (
+        payload.digit === "." &&
+        state.currentOperand.includes(".")
+      )
+        return state;
 
-const dictionary = [
-  {
-    title: "thunderstruck",
-    date: 1978,
-    artists: "acdc",
-    id: 1,
-  },
-  {
-    title: "unholy",
-    date: 2005,
-    artists: "sam smith",
-    id: 2,
-  },
-];
+      return {
+        ...state,
+        currentOperand: `${state.currentOperand || ""}${
+          payload.digit
+        }`,
+      };
+    case ACTIONS.CHOOSE_OPERATION:
+      if (
+        state.currentOperand == null &&
+        state.previousOperand == null
+      )
+        return state;
 
-const mappedDictionaryTitle = dictionary.map((items) => {
-  return <p key={items.id}>{items.title}</p>;
-});
-const mappedDictionaryDate = dictionary.map((items) => {
-  return <p key={items.id}>{items.date}</p>;
-});
+      if (state.currentOperand == null) {
+        return {
+          ...state,
+          operation: payload.operation,
+        };
+      }
+      if (state.previousOperand == null) {
+        return {
+          ...state,
+          operation: payload.operation,
+          previousOperand: state.currentOperand,
+          currentOperand: null,
+          currentOperand: null,
+        };
+      }
+      return {
+        ...state,
+        previousOperand: evaluate(state),
+        operation: payload.operation,
+      };
+    case ACTIONS.CLEAR:
+      return {};
+    case ACTIONS.EVALUATE:
+      if (
+        state.operation == null ||
+        state.currentOperand == null ||
+        state.previousOperand
+      ) {
+        return state;
+      }
+      return {
+        ...state,
+        overwrite: true,
+        previousOperand: null,
+        operation: null,
+        currentOperand: evauate(state),
+      };
+  }
+}
 
-const mappedDictionary = dictionary.map((items) => {
-  return (
-    <>
-      <li key={items.id}>{items.artists}</li>
-      <li key={items.id}>{items.date}</li>
-    </>
-  );
-});
-
+function evaluate({
+  currentOperand,
+  previousOperand,
+  operation,
+}) {
+  const prev = parseFloat(previousOperand);
+  const current = parseFloat(currentOperand);
+  if (isNaN(prev) || isNaN(current)) return "";
+  let computation = "";
+  switch (operation) {
+    case "+":
+      computation = prev + current;
+      break;
+    case "-":
+      computation = prev - current;
+      break;
+    case "×":
+      computation = prev * current;
+      break;
+    case "÷":
+      computation = prev / current;
+      break;
+  }
+  return computation.toString();
+}
 function App() {
+  const initialState = {
+    currentOperand: "",
+    previousOperand: "",
+    operation: "",
+  };
+  //value, dispatch---(function,initial value )
+  const [
+    { currentOperand, previousOperand, operation },
+    dispatch,
+  ] = useReducer(reducer, { initialState });
+
   return (
     <>
-      <div className="greetings">
-        {mappedList}
-        {mappedDictionaryTitle}
-        {mappedDictionaryDate}
-        {mappedDictionary}
-        <form>
-          <h2>
-            {title.grettings} {title.name}
-          </h2>
-          <label>
-            ID: <input type="number"></input>{" "}
-            <button>Submit</button>
-          </label>
-          <br></br>
-          <label htmlFor="search">Search: </label>
-          <input id="search" type="text"></input>
-        </form>
+      <div className="calculator-grid">
+        <div className="output">
+          <div className="previous-operand">
+            {previousOperand}
+            {operation}
+          </div>
+          <div className="current-operand">
+            {currentOperand}
+          </div>
+        </div>
+        <button
+          className="span-two"
+          onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+        >
+          AC
+        </button>
+        <button>DEL</button>
+        <OperationBtn operation="÷" dispatch={dispatch} />
+        <DigitBtn digit="1" dispatch={dispatch} />
+        <DigitBtn digit="2" dispatch={dispatch} />
+        <DigitBtn digit="3" dispatch={dispatch} />
+
+        <OperationBtn operation="×" dispatch={dispatch} />
+
+        <DigitBtn digit="4" dispatch={dispatch} />
+        <DigitBtn digit="5" dispatch={dispatch} />
+        <DigitBtn digit="6" dispatch={dispatch} />
+        <OperationBtn operation="+" dispatch={dispatch} />
+        <DigitBtn digit="7" dispatch={dispatch} />
+        <DigitBtn digit="8" dispatch={dispatch} />
+        <DigitBtn digit="9" dispatch={dispatch} />
+        <OperationBtn operation="-" dispatch={dispatch} />
+        <DigitBtn digit="0" dispatch={dispatch} />
+        <DigitBtn digit="." dispatch={dispatch} />
+        <button
+          onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+          className="span-two"
+        >
+          =
+        </button>
       </div>
     </>
   );
