@@ -1,3 +1,10 @@
+$primary-color: yellow;
+@import "animate.css";
+
+input,
+textarea {
+  font-family: Helvetica;
+}
 .App {
   text-align: center;
 }
